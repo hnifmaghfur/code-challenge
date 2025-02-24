@@ -1,6 +1,7 @@
 import { db } from '../../utils/db';
 import { Book, bookSchema, BookSearch } from '../../types/book';
 import { toSQLiteDateTime } from '../../utils/date_format';
+import logger from '../../utils/logger';
 
 export class BookQuery {
   // Create new book
@@ -36,7 +37,7 @@ export class BookQuery {
         return this.findById(bookId);
       });
     } catch (error) {
-      console.error('Database error:', error);
+      logger.error('Database error:', { error });
       return null;
     }
   }
@@ -50,7 +51,7 @@ export class BookQuery {
       const query = `
         UPDATE books SET 
         title = ?, author = ?, published_year = ?, genre = ?, description = ?, updated_at = ?
-        WHERE id = ?
+        WHERE id = ? and deleted_at is null
       `;
 
       const dbConn = await db.getConnection();
@@ -59,7 +60,21 @@ export class BookQuery {
       if (result.changes === 0) return null;
       return this.findById(id); // Use the non-optional id
     } catch (error) {
-      console.error('Database error:', error);
+      logger.error('Database error:', { error });
+      return null;
+    }
+  }
+
+  // Delete book
+  static async deleteBook(id: string): Promise<boolean | null> {
+    try {
+      const dbConn = await db.getConnection();
+      const query = 'UPDATE books SET deleted_at = ? WHERE id = ?';
+      const result = await dbConn.run(query, [toSQLiteDateTime(), id]);
+      if (result.changes === 0) return null;
+      return true
+    } catch (error) {  
+      logger.error('Database error:', { error });
       return null;
     }
   }
@@ -73,7 +88,7 @@ export class BookQuery {
 
       const query = `
         SELECT id, title FROM books 
-        WHERE 1=1
+        WHERE deleted_at is null
         ${title ? `AND title LIKE '%${title}%'` : ''}
         ${author ? `AND author LIKE '%${author}%'` : ''}
         ${genre ? `AND genre LIKE '%${genre}%'` : ''}
@@ -89,7 +104,7 @@ export class BookQuery {
 
       return rows;
     } catch (error) {
-      console.error('Database error:', error);
+      logger.error('Database error:', { error });
       return null;
     }
   }
@@ -100,7 +115,7 @@ export class BookQuery {
     try {
       const dbConn = await db.getConnection();
       const row = await dbConn.get(
-        'SELECT * FROM books WHERE id = ?',
+        'SELECT * FROM books WHERE id = ? and deleted_at is null',
         [id]
       );
 
@@ -108,13 +123,13 @@ export class BookQuery {
 
       const validationResult = bookSchema.safeParse(row);
       if (!validationResult.success) {
-        console.error('Invalid book data from database:', validationResult.error);
+        logger.error('Invalid book data from database:', { error: validationResult.error });
         return null;
       }
 
       return validationResult.data;
     } catch (error) {
-      console.error('Database error:', error);
+      logger.error('Database error:', { error });
       return null;
     }
   }
