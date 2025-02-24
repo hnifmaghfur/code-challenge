@@ -41,6 +41,29 @@ export class BookQuery {
     }
   }
 
+  // Update book
+  static async updateBook(bookData: Book): Promise<Book | null> {
+    try {
+      const { title, author, published_year, genre, description, id } = bookData;
+      if (!id) return null; // Early return if no id
+
+      const query = `
+        UPDATE books SET 
+        title = ?, author = ?, published_year = ?, genre = ?, description = ?, updated_at = ?
+        WHERE id = ?
+      `;
+
+      const dbConn = await db.getConnection();
+      const result = await dbConn.run(query, [title, author, published_year, genre, description, toSQLiteDateTime(), id]);
+
+      if (result.changes === 0) return null;
+      return this.findById(id); // Use the non-optional id
+    } catch (error) {
+      console.error('Database error:', error);
+      return null;
+    }
+  }
+
   // Get books with filter and pagination
   static async getBooks(bookSearch: BookSearch): Promise<Book[] | null> {
     try {

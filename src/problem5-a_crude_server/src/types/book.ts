@@ -46,4 +46,3 @@ export const bookPaginatedResponseSchema = z.object({
 export type Book = z.infer<typeof bookSchema>;
 export type BookSearch = z.infer<typeof bookSearchSchema>;
 export type BookPaginatedResponse = z.infer<typeof bookPaginatedResponseSchema>;
-

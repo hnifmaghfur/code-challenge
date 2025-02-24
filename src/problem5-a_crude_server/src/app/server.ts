@@ -18,6 +18,8 @@ app.post('/login', BasicAuthHandler.validateLoginInput, APIHandlers.handleLogin)
 app.post('/books', JWTHandler.verifyToken, APIHandlers.handleCreateBook); // Create book
 app.get('/books', JWTHandler.verifyToken, APIHandlers.handleGetBooks); // Get all books
 app.get('/books/:id', JWTHandler.verifyToken, APIHandlers.handleGetBookById); // Get book by id
+app.patch('/books/:id', JWTHandler.verifyToken, APIHandlers.handleUpdateBook); // Update book by id
+// app.post('/books/:id/del', JWTHandler.verifyToken, APIHandlers.handleDeleteBook); // Delete book by id
 
 
 export default app; 

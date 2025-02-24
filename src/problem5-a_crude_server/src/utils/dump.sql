@@ -20,7 +20,8 @@ CREATE TABLE books (
   genre TEXT NOT NULL,
   description TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  deleted_at DATETIME DEFAULT NULL
 );
 
 -- Create index for username lookups
@@ -33,8 +34,8 @@ INSERT INTO users (id, username, password, created_at, updated_at) VALUES
   ('usr_001', 'hanifmaghfur', 'password', DATETIME('now'), DATETIME('now'));
 
 -- Insert sample books
-INSERT INTO books (id, title, author, published_year, genre, description, created_at, updated_at) VALUES
-  ('book_001', 'The Great Gatsby', 'F. Scott Fitzgerald', 1925, 'Fiction', 'A story of decadence and excess.', DATETIME('now'), DATETIME('now')),
-  ('book_002', '1984', 'George Orwell', 1949, 'Science Fiction', 'A dystopian social science fiction novel.', DATETIME('now'), DATETIME('now'));
+INSERT INTO books (id, title, author, published_year, genre, description, created_at, updated_at, deleted_at) VALUES
+  ('book_001', 'The Great Gatsby', 'F. Scott Fitzgerald', 1925, 'Fiction', 'A story of decadence and excess.', DATETIME('now'), DATETIME('now'), NULL),
+  ('book_002', '1984', 'George Orwell', 1949, 'Science Fiction', 'A dystopian social science fiction novel.', DATETIME('now'), DATETIME('now'), NULL);
 
 -- Add any other sample data here 
