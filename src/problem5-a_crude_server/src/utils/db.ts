@@ -2,6 +2,7 @@ import sqlite3 from 'sqlite3';
 import { Database, open } from 'sqlite';
 import path from 'path';
 import fs from 'fs/promises';
+import logger from './logger';
 
 export class DatabaseService {
   private static instance: DatabaseService;
@@ -34,9 +35,9 @@ export class DatabaseService {
       // Enable WAL mode for better concurrent access
       await this.db.run('PRAGMA journal_mode = WAL');
 
-      console.log('Database initialized successfully');
+      logger.info('Database initialized successfully');
     } catch (error) {
-      console.error('Failed to initialize database:', error);
+      logger.error('Failed to initialize database:', { error });
       throw error;
     }
   }
@@ -114,9 +115,9 @@ export class DatabaseService {
       const db = await this.getConnection();
       await db.exec(sql);
       
-      console.log('Database dump loaded successfully');
+      logger.info('Database dump loaded successfully');
     } catch (error) {
-      console.error('Failed to load database dump:', error);
+      logger.error('Failed to load database dump:', { error });
       throw error;
     }
   }

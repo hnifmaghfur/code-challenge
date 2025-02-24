@@ -107,5 +107,19 @@ export class APIHandlers {
       return ResponseWrapper.error(res, 'Update book failed', error, 500);
     }
   }
+
+  // Delete book by id handler
+  static async handleDeleteBook(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const result = await BookCommands.deleteBook(id);
+      if (!result.success) {
+        return ResponseWrapper.error(res, result.error, result.error, 500);
+      }
+      return ResponseWrapper.success(res, { message: 'Book deleted successfully' });
+    } catch (error) {
+      return ResponseWrapper.error(res, 'Delete book failed', error, 500);
+    }
+  }
   
 }

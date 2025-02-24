@@ -3,6 +3,7 @@ import { JWTHandler } from '../../auth/jwt';
 import { Credentials, TokenPayload, tokenPayloadSchema } from '../../types/auth';
 import { UserQuery } from '../models/user';
 import { commandResponseSchema } from '../../types/response';
+import logger from '../../utils/logger';
 
 type CommandResponse = z.infer<typeof commandResponseSchema>;
 
@@ -15,6 +16,7 @@ export class UserCommands {
       // Verify credentials against database
       const user = await UserQuery.verifyCredentials(username, password);
       if (!user) {
+        logger.warn(`Authentication failed for user: ${username}`);
         return {
           success: false,
           error: 'Invalid credentials'
@@ -30,6 +32,7 @@ export class UserCommands {
       // Validate token payload
       const validatedPayload = tokenPayloadSchema.safeParse(payload);
       if (!validatedPayload.success) {
+        logger.warn(`Invalid token payload for user: ${username}:`, { errors: validatedPayload.error.errors });
         return {
           success: false,
           error: validatedPayload.error.errors
@@ -44,6 +47,7 @@ export class UserCommands {
         data: token
       };
     } catch (error) {
+      logger.error('Authentication failed:', { error });
       return {
         success: false,
         error: 'Authentication failed'

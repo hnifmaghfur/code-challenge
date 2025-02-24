@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { db } from '../../utils/db';
 import { userSchema } from '../../types/user';
 import { toSQLiteDateTime } from '../../utils/date_format';
+import logger from '../../utils/logger';
 
 // User schema
 type User = z.infer<typeof userSchema>;
@@ -20,13 +21,13 @@ export class UserQuery {
 
       const validationResult = userSchema.safeParse(row);
       if (!validationResult.success) {
-        console.error('Invalid user data from database:', validationResult.error);
+        logger.error('Invalid user data from database:', { error: validationResult.error });
         return null;
       }
 
       return validationResult.data;
     } catch (error) {
-      console.error('Database error:', error);
+      logger.error('Database error:', { error });
       return null;
     }
   }
@@ -46,7 +47,7 @@ export class UserQuery {
         return this.findByUsername(username);
       });
     } catch (error) {
-      console.error('Database error:', error);
+      logger.error('Database error:', { error });
       return null;
     }
   }
@@ -60,7 +61,7 @@ export class UserQuery {
       }
       return user;
     } catch (error) {
-      console.error('Verification error:', error);
+      logger.error('Verification error:', { error });
       return null;
     }
   }
