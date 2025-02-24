@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { ResponseWrapper } from '../utils/wrapper';
 import { credentialsSchema } from '../types/auth';
 import  { UserCommands } from '../modules/commands/user';
-import { bookSchema } from '../types/book';
+import { bookSchema} from '../types/book';
 import { BookCommands } from '../modules/commands/book';
 import { bookSearchSchema } from '../types/book';
 
@@ -88,4 +88,24 @@ export class APIHandlers {
       return ResponseWrapper.error(res, 'Get book by id failed', error, 500);
     }
   }
+
+  // Update book by id handler
+  static async handleUpdateBook(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const validationResult = bookSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return ResponseWrapper.error(res, 'Invalid request data', validationResult.error.errors, 400);
+      }
+      
+      const result = await BookCommands.updateBook(validationResult.data, id);
+      if (!result.success) {
+        return ResponseWrapper.error(res, result.error, result.error, 500);
+      }
+      return ResponseWrapper.success(res, { book: result.data }, 'Book updated successfully', 200);
+    } catch (error) {
+      return ResponseWrapper.error(res, 'Update book failed', error, 500);
+    }
+  }
+  
 }

@@ -28,6 +28,39 @@ export class BookCommands {
     }
   }
 
+  static async updateBook(bookData: Book, id:string): Promise<CommandResponse> {
+    try {
+      // Get existing book data
+      const existingBook = await BookCommands.getBookById(id);
+      if (!existingBook.success) {
+        return {
+          success: false,
+          error: 'Failed to update book'
+        };
+      }
+      
+      // Merge existing data with updates
+      const updateData = { ...existingBook.data, ...bookData };
+      const book = await BookQuery.updateBook(updateData);
+      if(!book) {
+        return {
+          success: false,
+          error: 'Failed to update book'
+        };
+      }
+
+      return {
+        success: true,
+        data: book
+      };
+    } catch (error){
+      return {
+        success: false,
+        error: 'Failed to update book'
+      };
+    }
+  }
+
   static async getBooks(bookSearch: BookSearch): Promise<CommandResponse> {
     try {
         const books = await BookQuery.getBooks(bookSearch);
