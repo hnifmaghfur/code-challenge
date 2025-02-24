@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { db } from '../../utils/db';
 import { userSchema } from '../../types/user';
+import { toSQLiteDateTime } from '../../utils/date_format';
 
 // User schema
 type User = z.infer<typeof userSchema>;
@@ -35,7 +36,7 @@ export class UserQuery {
     try {
       return await db.transaction(async (dbConn) => {
         const userId = Math.random().toString(36).substring(2);
-        const now = new Date().toISOString();
+        const now = toSQLiteDateTime();
 
         await dbConn.run(
           'INSERT INTO users (id, username, password, created_at, updated_at) VALUES (?, ?, ?, ?, ?)',

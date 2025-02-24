@@ -4,6 +4,7 @@ import { credentialsSchema } from '../types/auth';
 import  { UserCommands } from '../modules/commands/user';
 import { bookSchema } from '../types/book';
 import { BookCommands } from '../modules/commands/book';
+import { bookSearchSchema } from '../types/book';
 
 export class APIHandlers {
   // Login handler
@@ -49,9 +50,42 @@ export class APIHandlers {
       if (!result.success) {
         return ResponseWrapper.error(res, result.error, result.error, 500);
       }
-      return ResponseWrapper.success(res, { book: result.data });
+      return ResponseWrapper.success(res, { book: result.data }, 'Book created successfully', 201);
     } catch (error) {
       return ResponseWrapper.error(res, 'Create book failed', error, 500);
+    }
+  }
+
+  // Get books with filter and pagination handler
+  static async handleGetBooks(req: Request, res: Response) {
+    try {
+      const validationResult = bookSearchSchema.safeParse(req.query);
+
+      if (!validationResult.success) {
+        return ResponseWrapper.error(res, 'Invalid query parameters', validationResult.error.errors, 400);
+      }
+
+      const result = await BookCommands.getBooks(validationResult.data);
+      if (!result.success) {
+        return ResponseWrapper.error(res, result.error, result.error, 500);
+      }
+      return ResponseWrapper.success(res, { books: result.data });
+    } catch (error) {
+      return ResponseWrapper.error(res, 'Get books failed', error, 500);
+    }
+  }
+
+  // Get book by id handler
+  static async handleGetBookById(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const result = await BookCommands.getBookById(id);
+      if (!result.success) {
+        return ResponseWrapper.error(res, result.error, result.error, 500);
+      }
+      return ResponseWrapper.success(res, { book: result.data });
+    } catch (error) {
+      return ResponseWrapper.error(res, 'Get book by id failed', error, 500);
     }
   }
 }
