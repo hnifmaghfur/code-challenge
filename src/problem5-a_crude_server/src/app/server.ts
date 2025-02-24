@@ -14,8 +14,10 @@ app.get('/', (_: Request, res: Response) => {
 app.post('/login', BasicAuthHandler.validateLoginInput, APIHandlers.handleLogin);
 
 
-// Create Resource
-app.post('/books', JWTHandler.verifyToken, APIHandlers.handleCreateBook);
+// API Book
+app.post('/books', JWTHandler.verifyToken, APIHandlers.handleCreateBook); // Create book
+app.get('/books', JWTHandler.verifyToken, APIHandlers.handleGetBooks); // Get all books
+app.get('/books/:id', JWTHandler.verifyToken, APIHandlers.handleGetBookById); // Get book by id
 
 
 export default app; 

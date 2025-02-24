@@ -1,5 +1,6 @@
 import { db } from '../../utils/db';
-import { Book, bookSchema } from '../../types/book';
+import { Book, bookSchema, BookSearch } from '../../types/book';
+import { toSQLiteDateTime } from '../../utils/date_format';
 
 export class BookQuery {
   // Create new book
@@ -7,7 +8,7 @@ export class BookQuery {
     try {
       return await db.transaction(async (dbConn) => {
         const bookId = Math.random().toString(36).substring(2);
-        const now = new Date().toISOString();
+        const now = toSQLiteDateTime();
 
         const newBook = {
           id: bookId,
@@ -39,6 +40,37 @@ export class BookQuery {
       return null;
     }
   }
+
+  // Get books with filter and pagination
+  static async getBooks(bookSearch: BookSearch): Promise<Book[] | null> {
+    try {
+      const { title, author, genre, year, page, limit } = bookSearch;
+
+      const offset = (Number(page) - 1) * Number(limit);
+
+      const query = `
+        SELECT id, title FROM books 
+        WHERE 1=1
+        ${title ? `AND title LIKE '%${title}%'` : ''}
+        ${author ? `AND author LIKE '%${author}%'` : ''}
+        ${genre ? `AND genre LIKE '%${genre}%'` : ''}
+        ${year ? `AND published_year = ${year}` : ''}
+        ORDER BY created_at DESC
+        LIMIT ? OFFSET ?
+      `;
+
+      const dbConn = await db.getConnection();
+      const rows = await dbConn.all(query, [limit, offset]);
+
+      if (!rows) return null;
+
+      return rows;
+    } catch (error) {
+      console.error('Database error:', error);
+      return null;
+    }
+  }
+
 
   // Find book by ID
   static async findById(id: string): Promise<Book | null> {
