@@ -55,7 +55,7 @@ This document outlines the requirements and implementation details for the Score
 
 2. User Action
     - User completes an action.
-    - Client-side initiates POST `/api/score/update` with userId and scoreIncrement.
+    - Client-side initiates POST `/api/score/:id` with userId and scoreIncrement.
     - Server validates user authentication, verifies userId, and checks scoreIncrement.
     - If validations pass, the score is updated in the database.
 
@@ -67,7 +67,7 @@ This document outlines the requirements and implementation details for the Score
 
 ### API Endpoints
 - Update Score
-    - Endpoint: POST `/api/score/update`
+    - Endpoint: POST `/api/score/:id`
     - Request Body:
         ```json
         {
